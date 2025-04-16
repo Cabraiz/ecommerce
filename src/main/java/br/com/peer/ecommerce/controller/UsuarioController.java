@@ -2,8 +2,11 @@ package br.com.peer.ecommerce.controller;
 
 import br.com.peer.ecommerce.model.Usuario;
 import br.com.peer.ecommerce.service.UsuarioService;
+import br.com.peer.ecommerce.dto.LoginDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,5 +38,16 @@ public class UsuarioController {
     @DeleteMapping("/{id}")
     public void deletar(@PathVariable Long id) {
         service.deletar(id);
+    }
+
+    @Operation(summary = "Login do usuário (email + senha)")
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginDTO login) {
+        boolean autenticado = service.autenticar(login.getEmail(), login.getSenha());
+        if (autenticado) {
+            return ResponseEntity.ok("Login bem-sucedido");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email ou senha inválidos");
+        }
     }
 }
