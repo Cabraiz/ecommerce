@@ -1,13 +1,24 @@
-import { ReportHandler } from 'web-vitals';
+type ReportHandler = (metric: {
+  name: string;
+  value: number;
+  id: string;
+  delta: number;
+  entries: PerformanceEntry[];
+}) => void;
 
 const reportWebVitals = (onPerfEntry?: ReportHandler) => {
-  if (onPerfEntry && onPerfEntry instanceof Function) {
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(onPerfEntry);
-      getFID(onPerfEntry);
-      getFCP(onPerfEntry);
-      getLCP(onPerfEntry);
-      getTTFB(onPerfEntry);
+  if (onPerfEntry && typeof onPerfEntry === 'function') {
+    import('web-vitals/attribution').then(({
+      onCLS, 
+      onLCP, 
+      onFCP, 
+      onINP,
+      // onFID está deprecated, removido por padrão aqui
+    }) => {
+      onCLS(onPerfEntry);
+      onLCP(onPerfEntry);
+      onFCP(onPerfEntry);
+      onINP(onPerfEntry);
     });
   }
 };
