@@ -2,7 +2,6 @@
   "name": "ecommerce",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://oneforallcommerce.store",
   
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
@@ -29,7 +28,8 @@
 
     "predeploy": "npm run build",
     "deploy": "docker build -t ecommerce-app . && docker run -d -p 9998:9998 ecommerce-app",
-    "deployv": "npm install && npm run build && docker build -t ecommerce-app . && docker run -d -p 9998:9998 ecommerce-app"
+    "deployv": "npm install && npm run build && docker build -t ecommerce-app . && docker run -d -p 9998:9998 ecommerce-app",
+    "deploynope": "git add . && git commit -m \"🚀 deploy rápido\" && git push"
   },
   "eslintConfig": {
     "extends": [
