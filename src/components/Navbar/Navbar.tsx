@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
+import { useAuth } from '../../contexts/AuthContext';
 import logo from '../../assets/logo.png';
 
 const Navbar: React.FC = () => {
   const { cartItems } = useCart();
+  const { isLoggedIn, logout } = useAuth();
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -12,7 +14,8 @@ const Navbar: React.FC = () => {
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-md">
       <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
-        {/* Logo + Nome */}
+
+        {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="Logo" className="h-10 w-10 rounded-full object-cover" />
           <span className="text-xl font-bold whitespace-nowrap">OneForAllCommerce</span>
@@ -36,14 +39,27 @@ const Navbar: React.FC = () => {
           </button>
         </div>
 
-
         {/* Itens de menu - desktop */}
         <div className="hidden md:flex gap-8 items-center">
           <Link to="/category/roupas" className="hover:underline">Roupas</Link>
           <Link to="/category/acessorios" className="hover:underline">Acessórios</Link>
           <Link to="/category/calcados" className="hover:underline">Calçados</Link>
+
           <div className="flex gap-4 items-center">
-            <Link to="/login" className="hover:underline">Entrar</Link>
+
+            {!isLoggedIn ? (
+              <Link to="/login" className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition">
+                Entrar
+              </Link>
+            ) : (
+              <button
+                onClick={logout}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              >
+                Sair
+              </button>
+            )}
+
             <Link to="/cart" className="relative">
               🛒
               {totalItems > 0 && (
@@ -52,6 +68,7 @@ const Navbar: React.FC = () => {
                 </span>
               )}
             </Link>
+
           </div>
         </div>
       </div>
@@ -62,10 +79,21 @@ const Navbar: React.FC = () => {
           <Link to="/category/roupas" className="hover:underline">Roupas</Link>
           <Link to="/category/acessorios" className="hover:underline">Acessórios</Link>
           <Link to="/category/calcados" className="hover:underline">Calçados</Link>
-          <Link to="/login" className="hover:underline">Entrar</Link> {/* apenas o Entrar aqui */}
+
+          {!isLoggedIn ? (
+            <Link to="/login" className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition">
+              Entrar
+            </Link>
+          ) : (
+            <button
+              onClick={logout}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+            >
+              Sair
+            </button>
+          )}
         </div>
       )}
-
     </nav>
   );
 };

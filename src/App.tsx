@@ -10,11 +10,14 @@ import Checkout from './components/Checkout/Checkout';
 import OrderSuccess from './components/OrderSuccess/OrderSuccess';
 import UserProfile from './components/UserProfile/UserProfile';
 
+// Importar pages
+import Login from './pages/Login';
+
 // Importar mocks
 import { products } from './mocks/products';
 
 // Importar Cart Context
-import { CartProvider, useCart } from './contexts/CartContext';
+import { CartProvider } from './contexts/CartContext';
 
 // Componente especial para usar o ID da URL no ProductDetails
 const ProductDetailsWrapper = () => {
@@ -43,6 +46,7 @@ function App() {
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/success" element={<OrderSuccess />} />
               <Route path="/profile" element={<UserProfile />} />
+              <Route path="/login" element={<Login />} />
             </Routes>
           </div>
         </div>

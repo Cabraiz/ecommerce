@@ -1,4 +1,4 @@
-import { Product } from '../types/Product';
+import { Product } from '../types/product';
 
 // Agora IMPORTANDO as imagens dentro de mocks/mocksImg/
 import camisetaImg from './mocksImg/camisa.webp';
