@@ -19,6 +19,7 @@ import { products } from './mocks/products';
 // Importar Cart Context
 import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
+import Register from './pages/Register';
 
 // Componente especial para usar o ID da URL no ProductDetails
 const ProductDetailsWrapper = () => {
@@ -49,6 +50,7 @@ function App() {
                 <Route path="/success" element={<OrderSuccess />} />
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
               </Routes>
             </div>
           </div>

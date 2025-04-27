@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const { login } = useAuth();
@@ -13,12 +13,21 @@ const Login: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Simular uma validação fake
-    if (email === 'teste@email.com' && password === '123456') {
-      login();
-      navigate('/');
+    // Buscar usuário salvo no localStorage
+    const savedUser = localStorage.getItem('user');
+    
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+
+      // Verifica se email e senha batem
+      if (user.email === email && user.password === password) {
+        login();
+        navigate('/');
+      } else {
+        setError('Email ou senha incorretos.');
+      }
     } else {
-      setError('Email ou senha incorretos.');
+      setError('Nenhum usuário cadastrado.');
     }
   };
 
@@ -54,6 +63,10 @@ const Login: React.FC = () => {
             Entrar
           </button>
         </form>
+
+        <div className="text-center text-sm mt-4">
+          Não tem uma conta? <Link to="/register" className="text-indigo-500 hover:underline">Cadastre-se</Link>
+        </div>
       </div>
     </div>
   );
