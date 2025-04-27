@@ -1,10 +1,5 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
-
-export interface AuthContextType {
-  isLoggedIn: boolean;
-  login: () => void;
-  logout: () => void;
-}
+import { AuthContextType } from '../types/auth';
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 

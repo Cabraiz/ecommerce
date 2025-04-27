@@ -1,0 +1,32 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Pega o código
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Configura Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Faz o build da imagem
+      - name: Build Docker Image
+        run: |
+          docker build -t ecommerce-app .
+
+      # (Opcional) Testar rodar a imagem depois do build
+      - name: Run Container
+        run: |
+          docker run -d -p 9998:9998 ecommerce-app

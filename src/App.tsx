@@ -18,6 +18,7 @@ import { products } from './mocks/products';
 
 // Importar Cart Context
 import { CartProvider } from './contexts/CartContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 // Componente especial para usar o ID da URL no ProductDetails
 const ProductDetailsWrapper = () => {
@@ -33,25 +34,27 @@ const ProductDetailsWrapper = () => {
 
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        <div className="App">
-          <Navbar />
-          
-          <div className="p-8">
-            <Routes>
-              <Route path="/" element={<ProductList products={products} />} />
-              <Route path="/product/:id" element={<ProductDetailsWrapper />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/success" element={<OrderSuccess />} />
-              <Route path="/profile" element={<UserProfile />} />
-              <Route path="/login" element={<Login />} />
-            </Routes>
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <div className="App">
+            <Navbar />
+            
+            <div className="p-8">
+              <Routes>
+                <Route path="/" element={<ProductList products={products} />} />
+                <Route path="/product/:id" element={<ProductDetailsWrapper />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/success" element={<OrderSuccess />} />
+                <Route path="/profile" element={<UserProfile />} />
+                <Route path="/login" element={<Login />} />
+              </Routes>
+            </div>
           </div>
-        </div>
-      </Router>
-    </CartProvider>
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

@@ -26,8 +26,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build" 
+    "deploy": "docker build -t ecommerce-app . && docker run -d -p 9998:9998 ecommerce-app",
+    "deployv": "npm install && npm run build && docker build -t ecommerce-app . && docker run -d -p 9998:9998 ecommerce-app"
   },
   "eslintConfig": {
     "extends": [
