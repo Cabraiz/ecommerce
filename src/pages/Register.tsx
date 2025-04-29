@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { registerUser } from '../services/authService'; // 👈 Importa o service
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ const Register: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -18,11 +19,13 @@ const Register: React.FC = () => {
       return;
     }
 
-    // Simular cadastro no localStorage
-    const user = { name, email, password };
-    localStorage.setItem('user', JSON.stringify(user));
-
-    navigate('/login'); // Redireciona para login após cadastro
+    try {
+      await registerUser(name, email, password); // <-- Faz chamada real para API
+      navigate('/login'); // Redireciona para login após cadastro
+    } catch (err) {
+      console.error('Erro ao registrar:', err);
+      setError('Erro ao registrar usuário.');
+    }
   };
 
   return (

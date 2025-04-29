@@ -1,42 +1,32 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../services/authService'; // 👈 Importa o service
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();   
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Buscar usuário salvo no localStorage
-    const savedUser = localStorage.getItem('user');
-    
-    if (savedUser) {
-      const user = JSON.parse(savedUser);
-
-      // Verifica se email e senha batem
-      if (user.email === email && user.password === password) {
-        login();
-        navigate('/');
-      } else {
-        setError('Email ou senha incorretos.');
-      }
-    } else {
-      setError('Nenhum usuário cadastrado.');
+    try {
+      await loginUser(email, password); // <-- Faz chamada real
+      navigate('/'); // Redireciona para página inicial
+    } catch (err) {
+      console.error('Erro ao fazer login:', err);
+      setError('Credenciais inválidas.');
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center pt-16 p-4 bg-gray-50">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-        <h1 className="text-2xl font-bold mb-6 text-center">Entrar na sua conta</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Entrar</h1>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleLogin} className="flex flex-col gap-4">
           <input
             type="email"
             placeholder="Email"
@@ -65,7 +55,7 @@ const Login: React.FC = () => {
         </form>
 
         <div className="text-center text-sm mt-4">
-          Não tem uma conta? <Link to="/register" className="text-indigo-500 hover:underline">Cadastre-se</Link>
+          Não tem conta? <a href="/register" className="text-green-500 hover:underline">Cadastrar</a>
         </div>
       </div>
     </div>
