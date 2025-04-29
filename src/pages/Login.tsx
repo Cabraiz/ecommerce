@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/authService'; // 👈 Importa o service
 
 const Login: React.FC = () => {
@@ -55,7 +55,7 @@ const Login: React.FC = () => {
         </form>
 
         <div className="text-center text-sm mt-4">
-          Não tem conta? <a href="/register" className="text-green-500 hover:underline">Cadastrar</a>
+          Não tem conta? <Link to="/register" className="text-green-500 hover:underline">Cadastrar</Link>
         </div>
       </div>
     </div>
