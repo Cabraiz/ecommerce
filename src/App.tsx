@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 
-// Importar componentes
+import Cookies from 'js-cookie';
 import Navbar from './components/Navbar/Navbar';
 import ProductList from './components/ProductList/ProductList';
 import ProductDetails from './components/ProductDetails/ProductDetails';
@@ -10,42 +10,41 @@ import Checkout from './components/Checkout/Checkout';
 import OrderSuccess from './components/OrderSuccess/OrderSuccess';
 import UserProfile from './components/UserProfile/UserProfile';
 
-// Importar pages
 import Login from './pages/Login';
 import Register from './pages/Register';
 
-// Importar contextos
 import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
 
-// Importar tipos e fetch
 import { Product } from './types/product';
-import { getProducts } from './data/produts'; // sua função assíncrona de busca
+import { getProducts } from './data/produts';
+import { getProductCount } from './data/getProductCount';
 
-// Componente especial para usar o ID da URL
 const ProductDetailsWrapper = ({ products }: { products: Product[] }) => {
   const { id } = useParams();
   const product = products.find((p) => p.id === id);
-
-  if (!product) {
-    return <div>Produto não encontrado.</div>;
-  }
-
+  if (!product) return <div>Produto não encontrado.</div>;
   return <ProductDetails product={product} />;
 };
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [productCount, setProductCount] = useState<number | null>(null);
 
   useEffect(() => {
-    getProducts().then((data) => {
-      setProducts(data);
-      setLoading(false);
-    });
+    const cachedCount = Cookies.get('productCount');
+  
+    if (cachedCount) {
+      setProductCount(parseInt(cachedCount));
+    } else {
+      getProductCount().then((count) => {
+        setProductCount(count);
+        Cookies.set('productCount', String(count), { expires: 1 }); // 1 dia
+      });
+    }
+  
+    getProducts().then(setProducts);
   }, []);
-
-  if (loading) return <p className="p-4">Carregando produtos...</p>;
 
   return (
     <AuthProvider>
@@ -55,7 +54,12 @@ function App() {
             <Navbar />
             <div className="p-8">
               <Routes>
-                <Route path="/" element={<ProductList products={products} />} />
+                <Route path="/" element={
+                  <ProductList
+                    products={products}
+                    totalCount={productCount || 0}
+                  />
+                } />
                 <Route path="/product/:id" element={<ProductDetailsWrapper products={products} />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<Checkout />} />
@@ -72,9 +76,6 @@ function App() {
   );
 }
 
-// CartPage para conectar ao CartContext
-const CartPage = () => {
-  return <Cart />;
-};
+const CartPage = () => <Cart />;
 
 export default App;
