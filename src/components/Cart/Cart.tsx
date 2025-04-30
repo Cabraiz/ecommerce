@@ -1,8 +1,12 @@
 import React from 'react';
 import { useCart } from '../../contexts/CartContext';
+import { useNavigate } from "react-router-dom";
+
+
 
 const Cart: React.FC = () => {
   const { cartItems, addToCart, removeFromCart, decreaseQuantity } = useCart();
+  const navigate = useNavigate();
   
   const total = cartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
 
@@ -23,7 +27,7 @@ const Cart: React.FC = () => {
       if (res.ok) {
         alert('Compra realizada com sucesso!');
         // Aqui você poderia limpar o carrinho via contexto
-        window.location.reload();
+        navigate("/");
       } else {
         const msg = await res.text();
         alert('Erro ao comprar: ' + msg);
