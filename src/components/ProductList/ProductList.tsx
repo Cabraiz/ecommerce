@@ -1,13 +1,15 @@
 import React from 'react';
 import ProductCard from '../ProductCard/ProductCard';
 import { Product } from '../../types/product';
+import { VariacaoComTamanhosDTO } from '../../types/variacao';
 
 interface ProductListProps {
   products: Product[];
   totalCount: number;
+  variacoes: VariacaoComTamanhosDTO[];
 }
 
-const ProductList: React.FC<ProductListProps> = ({ products, totalCount }) => {
+const ProductList: React.FC<ProductListProps> = ({ products, totalCount, variacoes }) => {
   const filled = new Array(totalCount).fill(null);
 
   return (
@@ -22,7 +24,10 @@ const ProductList: React.FC<ProductListProps> = ({ products, totalCount }) => {
               animationFillMode: 'forwards',
             }}
           >
-            <ProductCard product={products[i]} />
+            <ProductCard
+              product={products[i]}
+              variacoes={variacoes.filter(v => String(v.produtoId) === products[i].id)}
+            />
           </div>
         ) : (
           <SkeletonCard key={i} />
