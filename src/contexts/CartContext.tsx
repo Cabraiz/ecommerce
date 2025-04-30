@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
-import { Product, ProductInCart } from '../types/product';
+import { ProductInCart } from '../types/product';
 
 interface CartItem {
   product: ProductInCart;
