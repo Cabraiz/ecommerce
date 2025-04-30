@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 
 // Importar componentes
@@ -12,17 +12,18 @@ import UserProfile from './components/UserProfile/UserProfile';
 
 // Importar pages
 import Login from './pages/Login';
-
-// Importar mocks
-import { products } from './mocks/products';
-
-// Importar Cart Context
-import { CartProvider } from './contexts/CartContext';
-import { AuthProvider } from './contexts/AuthContext';
 import Register from './pages/Register';
 
-// Componente especial para usar o ID da URL no ProductDetails
-const ProductDetailsWrapper = () => {
+// Importar contextos
+import { CartProvider } from './contexts/CartContext';
+import { AuthProvider } from './contexts/AuthContext';
+
+// Importar tipos e fetch
+import { Product } from './types/product';
+import { getProducts } from './data/produts'; // sua função assíncrona de busca
+
+// Componente especial para usar o ID da URL
+const ProductDetailsWrapper = ({ products }: { products: Product[] }) => {
   const { id } = useParams();
   const product = products.find((p) => p.id === id);
 
@@ -34,17 +35,28 @@ const ProductDetailsWrapper = () => {
 };
 
 function App() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getProducts().then((data) => {
+      setProducts(data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <p className="p-4">Carregando produtos...</p>;
+
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
           <div className="App">
             <Navbar />
-            
             <div className="p-8">
               <Routes>
                 <Route path="/" element={<ProductList products={products} />} />
-                <Route path="/product/:id" element={<ProductDetailsWrapper />} />
+                <Route path="/product/:id" element={<ProductDetailsWrapper products={products} />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/success" element={<OrderSuccess />} />
