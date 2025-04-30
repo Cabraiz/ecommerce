@@ -8,6 +8,6 @@ export interface Product {
 }
 
 export interface ProductInCart extends Product {
-selectedCor: string;
-selectedTamanho: string;
+    selectedCor: string;
+    selectedTamanho: string;
 }
