@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../../types/product';
 import { useCart } from '../../contexts/CartContext';
@@ -23,6 +23,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variacoes }) => {
   );
   
   const variacaoSelecionada = variacoesDoProduto.find(v => String(v.id) === selectedVariacaoId);
+
+  useEffect(() => {
+    if (variacoesDoProduto.length > 0 && !selectedVariacaoId) {
+      const primeira = variacoesDoProduto[0];
+      setSelectedVariacaoId(String(primeira.id));
+      setSelectedTamanho(primeira.tamanhos?.[0]?.tamanho || null);
+    }
+  }, [variacoesDoProduto, selectedVariacaoId]);  
 
   function getColorHexFromName(cor: string): string {
     const cores: Record<string, string> = {
