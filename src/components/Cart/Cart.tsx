@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../../contexts/CartContext';
 import { useNavigate } from "react-router-dom";
 
@@ -9,6 +9,48 @@ const Cart: React.FC = () => {
   const navigate = useNavigate();
   
   const total = cartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [pagamentoConfirmado, setPagamentoConfirmado] = useState(false);
+
+  const [qrLoading, setQrLoading] = useState(false);
+  const [compraLoading, setCompraLoading] = useState(false);
+
+  const gerarQRCode = async () => {
+    try {
+      setQrLoading(true);
+      const res = await fetch('http://localhost:8080/pagamentos/pix/qrcode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chavePix: '610.708.003-17',
+          valor: total,
+          descricao: 'Comprador1'
+        })
+      });
+  
+      if (!res.ok) throw new Error('Erro ao gerar QR Code');
+  
+      const imageData = await res.text();
+      setQrCode(`data:image/png;base64,${imageData}`);
+    } catch (err) {
+      console.error('Erro ao gerar QR Code:', err);
+      alert('Erro ao gerar QR Code');
+    } finally {
+      setQrLoading(false);
+    }
+  };  
+
+  const handleEscaneado = async () => {
+    try {
+      setCompraLoading(true);
+      await handleComprar();
+      setQrCode(null);
+      setPagamentoConfirmado(false);
+    } finally {
+      setCompraLoading(false);
+    }
+  };
 
   const handleComprar = async () => {
     try {
@@ -111,12 +153,42 @@ const Cart: React.FC = () => {
           </div>
           {/* Botão Comprar */}
           <div className="flex justify-end mt-4">
+          {qrCode ? (
+            <div className="flex flex-col items-end gap-4">
+              <img
+                src={qrCode}
+                alt="QR Code Pix"
+                className="w-56 h-56 border-2 border-gray-300 rounded-md shadow-md"
+              />
+              <button
+                onClick={handleEscaneado}
+                disabled={compraLoading}
+                className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition flex items-center justify-center gap-2"
+              >
+                {compraLoading ? (
+                  <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                ) : (
+                  'Escaneado'
+                )}
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={handleComprar}
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+              onClick={gerarQRCode}
+              disabled={cartItems.length === 0 || qrLoading}
+              className={`px-6 py-2 rounded transition text-white flex items-center justify-center gap-2 ${
+                cartItems.length === 0 || qrLoading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
-              Comprar
+              {qrLoading ? (
+                <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+              ) : (
+                'Comprar'
+              )}
             </button>
+          )}
           </div>
         </div>
       )}

@@ -11,10 +11,17 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, variacoes }) => {
   const { addToCart } = useCart();
-  const [selectedVariacaoId, setSelectedVariacaoId] = useState<string | null>(null);
-  const [selectedTamanho, setSelectedTamanho] = useState<string | null>(null);
-
   const variacoesDoProduto = variacoes.filter(v => String(v.produtoId) === product.id);
+  const primeiraVariacao = variacoesDoProduto[0];
+  
+  const [selectedVariacaoId, setSelectedVariacaoId] = useState<string | null>(
+    primeiraVariacao ? String(primeiraVariacao.id) : null
+  );
+  
+  const [selectedTamanho, setSelectedTamanho] = useState<string | null>(
+    primeiraVariacao?.tamanhos?.[0]?.tamanho || null
+  );
+  
   const variacaoSelecionada = variacoesDoProduto.find(v => String(v.id) === selectedVariacaoId);
 
   function getColorHexFromName(cor: string): string {
@@ -52,7 +59,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variacoes }) => {
         />
       </div>
 
-      <div className="p-4 flex flex-col gap-2">
+      <div className="p-4 flex flex-col gap-2 items-end text-right">
         <h2 className="text-lg font-semibold">{product.name}</h2>
         <p className="text-gray-600">R$ {product.price.toFixed(2)}</p>
 
@@ -96,7 +103,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variacoes }) => {
 
         <button
           onClick={handleAddToCart}
-          className="mt-2 bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700 text-sm"
+          className="mt-2 bg-green-600 text-white py-2 w-full rounded hover:bg-green-700 text-sm font-semibold transition"
         >
           Adicionar ao Carrinho
         </button>
