@@ -16,9 +16,9 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Logo" className="h-10 w-10 rounded-full object-cover" />
-          <span className="text-xl font-bold whitespace-nowrap">OneForAllCommerce</span>
+        <Link to="/" className="flex items-center gap-2 select-none">
+          <img src={logo} alt="Logo" className="h-10 w-10 rounded-full object-cover select-none" />
+          <span className="text-xl font-bold whitespace-nowrap select-none">OneForAllCommerce</span>
         </Link>
 
         {/* Botão de menu no mobile */}
@@ -40,7 +40,7 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Itens de menu - desktop */}
-        <div className="hidden md:flex gap-8 items-center">
+        <div className="hidden md:flex gap-8 items-center select-none">
           <Link to="/category/roupas" className="hover:underline">Roupas</Link>
           <Link to="/category/acessorios" className="hover:underline">Acessórios</Link>
           <Link to="/category/calcados" className="hover:underline">Calçados</Link>
@@ -75,7 +75,7 @@ const Navbar: React.FC = () => {
 
       {/* Itens de menu - mobile */}
       {menuOpen && (
-        <div className="flex flex-col gap-4 items-center bg-white shadow-md py-4 md:hidden">
+        <div className="flex flex-col gap-4 items-center bg-white shadow-md py-4 md:hidden select-none">
           <Link to="/category/roupas" className="hover:underline">Roupas</Link>
           <Link to="/category/acessorios" className="hover:underline">Acessórios</Link>
           <Link to="/category/calcados" className="hover:underline">Calçados</Link>

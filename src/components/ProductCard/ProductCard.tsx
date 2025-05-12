@@ -59,20 +59,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variacoes }) => {
 
   return (
     <div className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-4 bg-white">
+      {/* Parte não interativa */}
+      <div className="flex-1 flex items-center justify-center p-4 bg-white select-none pointer-events-none">
         <img
           src={product.imageUrl}
           alt={product.name}
           className="max-h-48 w-auto object-contain"
+          draggable={false}
         />
       </div>
-
-      <div className="p-4 flex flex-col gap-2 items-end text-right">
+  
+      {/* Conteúdo inferior com interatividade seletiva */}
+      <div className="p-4 flex flex-col gap-2 items-end text-right select-none">
         <h2 className="text-lg font-semibold">{product.name}</h2>
         <p className="text-gray-600">R$ {product.price.toFixed(2)}</p>
-
-        {/* Cores disponíveis */}
-        <div className="flex gap-2 mt-1">
+  
+        {/* Botões de cor (interativos) */}
+        <div className="flex gap-2 mt-1 pointer-events-auto">
           {variacoesDoProduto.map((v) => (
             <button
               key={v.id}
@@ -80,16 +83,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variacoes }) => {
                 setSelectedVariacaoId(String(v.id));
                 setSelectedTamanho(null);
               }}
-              className={`w-5 h-5 rounded-full border ${String(v.id) === selectedVariacaoId ? 'ring-2 ring-black' : ''}`}
+              className={`w-5 h-5 rounded-full border ${
+                String(v.id) === selectedVariacaoId ? 'ring-2 ring-black' : ''
+              }`}
               style={{ backgroundColor: getColorHexFromName(v.cor) }}
               title={v.cor}
             />
           ))}
         </div>
-
-        {/* Tamanhos da cor selecionada */}
+  
+        {/* Botões de tamanho (interativos) */}
         {variacaoSelecionada && (
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="flex flex-wrap gap-2 mt-2 pointer-events-auto">
             {variacaoSelecionada.tamanhos.map((t) => (
               <button
                 key={t.tamanho}
@@ -104,20 +109,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variacoes }) => {
             ))}
           </div>
         )}
-
-        <Link to={`/product/${product.id}`} className="text-blue-600 hover:underline text-sm">
+  
+        {/* Link e botão: interativos */}
+        <Link
+          to={`/product/${product.id}`}
+          className="text-blue-600 hover:underline text-sm pointer-events-auto"
+        >
           Ver detalhes
         </Link>
-
+  
         <button
           onClick={handleAddToCart}
-          className="mt-2 bg-green-600 text-white py-2 w-full rounded hover:bg-green-700 text-sm font-semibold transition"
+          className="mt-2 bg-green-600 text-white py-2 w-full rounded hover:bg-green-700 text-sm font-semibold transition pointer-events-auto"
         >
           Adicionar ao Carrinho
         </button>
       </div>
     </div>
   );
+  
 };
 
 export default ProductCard;
