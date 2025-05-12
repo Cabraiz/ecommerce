@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Product } from '../../types/product';
 import { useCart } from '../../contexts/CartContext';
 import { VariacaoComTamanhosDTO } from '../../types/variacao';
+import { cartIconRef } from '../Navbar/cartIconRef';
+
 
 interface ProductCardProps {
   product: Product;
@@ -23,6 +25,41 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variacoes }) => {
   );
   
   const variacaoSelecionada = variacoesDoProduto.find(v => String(v.id) === selectedVariacaoId);
+
+  const animateToCart = () => {
+    const productImage = document.querySelector(`#product-image-${product.id}`) as HTMLImageElement;
+    const cartIcon = cartIconRef.current;
+    if (!productImage || !cartIcon) return;
+  
+    const imgRect = productImage.getBoundingClientRect();
+    const cartRect = cartIcon.getBoundingClientRect();
+  
+    const flyingImage = productImage.cloneNode(true) as HTMLImageElement;
+    flyingImage.style.position = 'fixed';
+    flyingImage.style.left = `${imgRect.left}px`;
+    flyingImage.style.top = `${imgRect.top}px`;
+    flyingImage.style.width = `${imgRect.width}px`;
+    flyingImage.style.height = `${imgRect.height}px`;
+    flyingImage.style.transition = 'all 0.8s ease-in-out';
+    flyingImage.style.zIndex = '1000';
+    flyingImage.style.pointerEvents = 'none';
+    flyingImage.style.borderRadius = '8px';
+    document.body.appendChild(flyingImage);
+  
+    requestAnimationFrame(() => {
+      flyingImage.style.left = `${cartRect.left + cartRect.width / 2 - 15}px`;
+      flyingImage.style.top = `${cartRect.top + cartRect.height / 2 - 15}px`;
+      flyingImage.style.width = '30px';
+      flyingImage.style.height = '30px';
+      flyingImage.style.opacity = '0.1';
+      flyingImage.style.transform = 'rotate(20deg)';
+    });
+  
+    setTimeout(() => {
+      flyingImage.remove();
+    }, 800);
+  };
+  
 
   useEffect(() => {
     if (variacoesDoProduto.length > 0 && !selectedVariacaoId) {
@@ -50,6 +87,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variacoes }) => {
       return;
     }
 
+    animateToCart();
+
     addToCart({
       ...product,
       selectedCor: selectedVariacaoId, // ← ID da variação, que você usará no backend
@@ -62,6 +101,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variacoes }) => {
       {/* Parte não interativa */}
       <div className="flex-1 flex items-center justify-center p-4 bg-white select-none pointer-events-none">
         <img
+          id={`product-image-${product.id}`}
           src={product.imageUrl}
           alt={product.name}
           className="max-h-48 w-auto object-contain"

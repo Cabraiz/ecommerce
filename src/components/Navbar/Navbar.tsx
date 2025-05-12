@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import logo from '../../assets/logo.png';
+import { cartIconRef } from './cartIconRef';
 
 const Navbar: React.FC = () => {
   const { cartItems } = useCart();
@@ -23,7 +24,7 @@ const Navbar: React.FC = () => {
 
         {/* Botão de menu no mobile */}
         <div className="flex items-center gap-4 md:hidden">
-          <Link to="/cart" className="relative">
+          <Link to="/cart" className="relative" ref={cartIconRef}>
             🛒
             {totalItems > 0 && (
               <span className="absolute -top-2 -right-2 text-xs bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
@@ -60,7 +61,7 @@ const Navbar: React.FC = () => {
               </button>
             )}
 
-            <Link to="/cart" className="relative">
+            <Link to="/cart" className="relative" ref={cartIconRef}>
               🛒
               {totalItems > 0 && (
                 <span className="absolute -top-2 -right-2 text-xs bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
