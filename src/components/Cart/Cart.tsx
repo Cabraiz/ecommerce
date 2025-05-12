@@ -26,7 +26,7 @@ const Cart: React.FC = () => {
   const gerarQRCode = async () => {
     try {
       setQrLoading(true);
-      const res = await fetch('http://localhost:8080/pagamentos/pix/qrcode', {
+      const res = await fetch('https://ecommerce-api-production-df5c.up.railway.app/pagamentos/pix/qrcode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chavePix: '610.708.003-17', valor: total, descricao: 'Comprador1' })
