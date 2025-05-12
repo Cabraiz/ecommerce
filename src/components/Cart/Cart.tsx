@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../../contexts/CartContext';
 import { useNavigate } from "react-router-dom";
+import ModalPagamento from './ModalPagamento';
 
 const Cart: React.FC = () => {
   const { cartItems, addToCart, removeFromCart, decreaseQuantity, clearCart } = useCart();
@@ -15,6 +16,8 @@ const Cart: React.FC = () => {
 
   const [qrLoading, setQrLoading] = useState(false);
   const [compraLoading, setCompraLoading] = useState(false);
+
+  const [modalAberto, setModalAberto] = useState(false);
 
   useEffect(() => {
     if (pagamentoConfirmado) {
@@ -146,13 +149,44 @@ const Cart: React.FC = () => {
                   </div>
                 )}
               </div>
-            ) : (
-              <button onClick={gerarQRCode} disabled={cartItems.length === 0 || qrLoading} className={`px-6 py-2 rounded transition text-white flex items-center justify-center gap-2 ${cartItems.length === 0 || qrLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
-                {qrLoading ? (
-                  <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-                ) : 'Comprar'}
-              </button>
-            )}
+                        ) : (
+                          <>
+                            {!qrCode && !modalAberto && (
+                              <button
+                                onClick={() => setModalAberto(true)}
+                                disabled={cartItems.length === 0 || qrLoading}
+                                className={`px-6 py-2 rounded transition text-white flex items-center justify-center gap-2 ${
+                                  cartItems.length === 0 || qrLoading
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-600 hover:bg-blue-700'
+                                }`}
+                              >
+                                {qrLoading ? (
+                                  <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                                ) : 'Comprar'}
+                              </button>
+                            )}
+            
+                            {modalAberto && (
+                              <ModalPagamento
+                                onClose={() => setModalAberto(false)}
+                                onSelecionarPix={() => {
+                                  setModalAberto(false);
+                                  gerarQRCode();
+                                }}
+                                onSelecionarCartao={() => {
+                                  setModalAberto(false);
+                                  alert('💳 Simulação: pagamento com cartão ainda não implementado.');
+                                }}
+                                onSelecionarBoleto={() => {
+                                  setModalAberto(false);
+                                  alert('🧾 Simulação: boleto gerado com vencimento em 2 dias úteis.');
+                                }}
+                              />
+                            )}
+                          </>
+                        )}
+            
           </div>
         </div>
       )}
