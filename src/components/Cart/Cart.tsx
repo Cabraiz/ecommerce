@@ -85,8 +85,7 @@ const Cart: React.FC = () => {
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-8">Seu Carrinho</h1>
+    <div className="p-8 select-none">
       {cartItems.length === 0 && !pagamentoConfirmado ? (
         <p className="text-gray-500">O carrinho está vazio.</p>
       ) : (
