@@ -169,14 +169,18 @@ const Cart: React.FC = () => {
             
                             {modalAberto && (
                               <ModalPagamento
+                                valorTotal={total}
+                                onPagamentoSucesso={async () => {
+                                  await handleComprar(); // reduz estoque e faz toda lógica
+                                  setModalAberto(false);
+                                }}
                                 onClose={() => setModalAberto(false)}
                                 onSelecionarPix={() => {
                                   setModalAberto(false);
                                   gerarQRCode();
                                 }}
                                 onSelecionarCartao={() => {
-                                  setModalAberto(false);
-                                  alert('💳 Simulação: pagamento com cartão ainda não implementado.');
+                                  // opcional: deixar vazio ou log
                                 }}
                                 onSelecionarBoleto={() => {
                                   setModalAberto(false);
@@ -184,6 +188,7 @@ const Cart: React.FC = () => {
                                 }}
                               />
                             )}
+
                           </>
                         )}
             
