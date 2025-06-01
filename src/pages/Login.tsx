@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginUser } from '../services/authService'; // 👈 Importa o service
+import { loginUser } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,11 +17,14 @@ const Login: React.FC = () => {
     e.preventDefault();
 
     try {
-      await loginUser(email, password); // <-- Faz chamada real
-      navigate('/'); // Redireciona para página inicial
+      await loginUser(email, password); // Faz chamada real
+      login(); // Atualiza o contexto de autenticação
+      toast.success('Login realizado com sucesso!');
+      navigate('/'); // Redireciona para página inicial ou /cart
     } catch (err) {
       console.error('Erro ao fazer login:', err);
       setError('Credenciais inválidas.');
+      toast.error('Erro ao fazer login. Verifique suas credenciais.');
     }
   };
 
@@ -55,7 +62,10 @@ const Login: React.FC = () => {
         </form>
 
         <div className="text-center text-sm mt-4">
-          Não tem conta? <Link to="/register" className="text-green-500 hover:underline">Cadastrar</Link>
+          Não tem conta?{' '}
+          <Link to="/register" className="text-green-500 hover:underline">
+            Cadastrar
+          </Link>
         </div>
       </div>
     </div>

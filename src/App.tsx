@@ -21,6 +21,9 @@ import { Product } from './types/product';
 import { VariacaoComTamanhosDTO } from './types/variacao';
 import { getProducts } from './data/produts';
 import { getProductCount } from './data/getProductCount';
+import PrivateRoute from './components/PrivateRoute';
+
+import { ToastContainer } from 'react-toastify';
 
 const ProductDetailsWrapper = ({
   products,
@@ -80,7 +83,14 @@ function App() {
                   path="/product/:id"
                   element={<ProductDetailsWrapper products={products} variacoes={variacoes} />}
                 />
-                <Route path="/cart" element={<CartPage />} />
+                <Route
+                  path="/cart"
+                  element={
+                    <PrivateRoute>
+                      <CartPage />
+                    </PrivateRoute>
+                  }
+                />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/success" element={<OrderSuccess />} />
                 <Route path="/profile" element={<UserProfile />} />
@@ -88,6 +98,7 @@ function App() {
                 <Route path="/register" element={<Register />} />
               </Routes>
             </div>
+            <ToastContainer position="top-right" autoClose={3000} /> {/* ✅ Aqui está certo */}
           </div>
         </Router>
       </CartProvider>
