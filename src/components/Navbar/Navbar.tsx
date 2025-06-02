@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
 import logo from '../../assets/logo.png';
 import { cartIconRef } from './cartIconRef';
 
@@ -9,8 +11,17 @@ const Navbar: React.FC = () => {
   const { cartItems } = useCart();
   const { isLoggedIn, logout } = useAuth();
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const nomeUsuario = Cookies.get('usuario_nome');
+  const saudacao = nomeUsuario ? `Olá, ${nomeUsuario.split(' ')[0]}` : 'Olá, visitante';
+
+  const handleLogout = () => {
+    logout();
+    toast.info('Você saiu com sucesso!');
+    navigate('/');
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-md">
@@ -41,24 +52,31 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Itens de menu - desktop */}
-        <div className="hidden md:flex gap-8 items-center select-none">
+        <div className="hidden md:flex gap-6 items-center select-none">
           <Link to="/category/roupas" className="hover:underline">Roupas</Link>
           <Link to="/category/acessorios" className="hover:underline">Acessórios</Link>
           <Link to="/category/calcados" className="hover:underline">Calçados</Link>
 
           <div className="flex gap-4 items-center">
+            <span className="text-gray-700 text-sm font-medium">{saudacao}</span>
 
-            {!isLoggedIn ? (
+            {isLoggedIn ? (
+              <>
+                <Link to="/retiradas" className="text-sm text-blue-600 underline hover:text-blue-800 transition">
+                  Meus Produtos
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                >
+                  Sair
+                </button>
+              </>
+            ) : (
               <Link to="/login" className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition">
                 Entrar
               </Link>
-            ) : (
-              <button
-                onClick={logout}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-              >
-                Sair
-              </button>
             )}
 
             <Link to="/cart" className="relative" ref={cartIconRef}>
@@ -69,7 +87,6 @@ const Navbar: React.FC = () => {
                 </span>
               )}
             </Link>
-
           </div>
         </div>
       </div>
@@ -81,17 +98,25 @@ const Navbar: React.FC = () => {
           <Link to="/category/acessorios" className="hover:underline">Acessórios</Link>
           <Link to="/category/calcados" className="hover:underline">Calçados</Link>
 
-          {!isLoggedIn ? (
+          <span className="text-gray-700 text-sm font-medium">{saudacao}</span>
+
+          {isLoggedIn ? (
+            <>
+              <Link to="/retiradas" className="text-sm text-blue-600 underline hover:text-blue-800 transition">
+                Meus Produtos
+              </Link>
+
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              >
+                Sair
+              </button>
+            </>
+          ) : (
             <Link to="/login" className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition">
               Entrar
             </Link>
-          ) : (
-            <button
-              onClick={logout}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-            >
-              Sair
-            </button>
           )}
         </div>
       )}

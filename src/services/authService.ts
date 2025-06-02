@@ -27,5 +27,5 @@ export const loginUser = async (email: string, senha: string) => {
   };
 
   const response = await axios.post(`${API_URL}/usuarios/login`, payload);
-  return response.data;
+  return response.data; // ← já retorna o objeto { id, nome, email, papel }
 };

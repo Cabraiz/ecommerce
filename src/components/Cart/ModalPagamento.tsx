@@ -8,6 +8,7 @@ interface ModalPagamentoProps {
   onSelecionarBoleto: () => void;
   valorTotal: number;
   onPagamentoSucesso: () => void;
+  loadingPix?: boolean; // opcional: mostra spinner no botão Pix
 }
 
 const ModalPagamento: React.FC<ModalPagamentoProps> = ({
@@ -17,12 +18,13 @@ const ModalPagamento: React.FC<ModalPagamentoProps> = ({
   onSelecionarBoleto,
   valorTotal,
   onPagamentoSucesso,
+  loadingPix = false,
 }) => {
   const [modoCartao, setModoCartao] = useState(false);
 
   const handleSelecionarCartao = () => {
     setModoCartao(true);
-    onSelecionarCartao(); // opcional, se quiser logar/estilizar
+    onSelecionarCartao();
   };
 
   return (
@@ -37,9 +39,23 @@ const ModalPagamento: React.FC<ModalPagamentoProps> = ({
             <div className="space-y-3">
               <button
                 onClick={onSelecionarPix}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg shadow hover:from-green-600 hover:to-green-700 transition font-medium text-lg"
+                disabled={loadingPix}
+                className={`w-full py-3 rounded-lg shadow font-medium text-lg flex items-center justify-center gap-2 transition text-white ${
+                  loadingPix
+                    ? 'bg-green-400 cursor-wait'
+                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                }`}
               >
-                Pagar com Pix
+                {loadingPix ? (
+                  <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l2-2m0 0l2-2m-2 2v6m-4 4h8a2 2 0 002-2v-5a2 2 0 00-2-2H7a2 2 0 00-2 2v5a2 2 0 002 2z" />
+                    </svg>
+                    Pagar com Pix (QR Code + Código)
+                  </>
+                )}
               </button>
 
               <button
@@ -64,7 +80,7 @@ const ModalPagamento: React.FC<ModalPagamentoProps> = ({
               valorTotal={valorTotal}
               onPagamentoSucesso={() => {
                 setModoCartao(false);
-                onPagamentoSucesso(); // chama o callback para limpar o carrinho e exibir mensagem de sucesso
+                onPagamentoSucesso();
               }}
               onVoltar={() => setModoCartao(false)}
             />

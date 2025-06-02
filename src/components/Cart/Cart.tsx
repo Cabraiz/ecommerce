@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../../contexts/CartContext';
 import { useNavigate } from "react-router-dom";
 import ModalPagamento from './ModalPagamento';
+import QRCode from "qrcode";
+import Cookies from 'js-cookie';
+
 
 const Cart: React.FC = () => {
   const { cartItems, addToCart, removeFromCart, decreaseQuantity, clearCart } = useCart();
@@ -10,6 +13,7 @@ const Cart: React.FC = () => {
   const total = cartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
 
   const [qrCode, setQrCode] = useState<string | null>(null);
+  const [pixCode, setPixCode] = useState<string | null>(null);
   const [produtosComprados, setProdutosComprados] = useState<typeof cartItems>([]);
   const [estimativaEntrega, setEstimativaEntrega] = useState<string | null>(null);
   const [pagamentoConfirmado, setPagamentoConfirmado] = useState(false);
@@ -27,23 +31,38 @@ const Cart: React.FC = () => {
   }, [pagamentoConfirmado, navigate]);
 
   const gerarQRCode = async () => {
-    try {
-      setQrLoading(true);
-      const res = await fetch('https://ecommerce-api-production-df5c.up.railway.app/pagamentos/pix/qrcode', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chavePix: '610.708.003-17', valor: total, descricao: 'Comprador1' })
-      });
-      if (!res.ok) throw new Error('Erro ao gerar QR Code');
-      const imageData = await res.text();
-      setQrCode(`data:image/png;base64,${imageData}`);
-    } catch (err) {
-      console.error(err);
-      alert('Erro ao gerar QR Code');
-    } finally {
-      setQrLoading(false);
-    }
-  };
+  try {
+    setQrLoading(true);
+
+    const payloadBody = {
+      valor: total,
+      descricao: 'Comprador1'
+    };
+
+    const resPix = await fetch('https://ecommerce-api-production-df5c.up.railway.app/pagamentos/pix/payload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payloadBody)
+    });
+
+    if (!resPix.ok) throw new Error('Erro ao gerar código Pix');
+
+    const payloadText = await resPix.text();
+
+    // transforma o payload em uma imagem base64 (QR Code visual)
+    const qrCodeDataUrl = await QRCode.toDataURL(payloadText);
+
+    setQrCode(qrCodeDataUrl);
+    setPixCode(payloadText);
+  } catch (err) {
+    console.error(err);
+    alert('Erro ao gerar código Pix');
+  } finally {
+    setQrLoading(false);
+  }
+};
+
+
 
   const gerarEstimativaEntrega = () => {
     const dias = Math.floor(Math.random() * 4) + 2;
@@ -55,6 +74,7 @@ const Cart: React.FC = () => {
       setCompraLoading(true);
       await handleComprar();
       setQrCode(null);
+      setPixCode(null);
     } finally {
       setCompraLoading(false);
     }
@@ -62,16 +82,28 @@ const Cart: React.FC = () => {
 
   const handleComprar = async () => {
     try {
+      const usuarioId = Cookies.get('usuario_id');
+
+      if (!usuarioId) {
+        alert('Usuário não identificado. Faça login novamente.');
+        return;
+      }
+
       const payload = cartItems.map(item => ({
-        variacaoId: parseInt(item.product.selectedCor),
+        variacaoId: item.product.variacaoId ?? parseInt(item.product.selectedCor),
         tamanho: item.product.selectedTamanho,
-        quantidade: item.quantity
+        quantidade: item.quantity,
+        usuarioId: parseInt(usuarioId)
       }));
+
       const res = await fetch('https://ecommerce-api-production-df5c.up.railway.app/estoque/reduzir', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(payload)
       });
+
       if (res.ok) {
         setProdutosComprados(cartItems);
         setEstimativaEntrega(gerarEstimativaEntrega());
@@ -79,13 +111,15 @@ const Cart: React.FC = () => {
         clearCart();
       } else {
         const msg = await res.text();
+        console.error('❌ Erro na resposta:', msg);
         alert('Erro ao comprar: ' + msg);
       }
     } catch (err) {
-      console.error('Erro ao reduzir estoque:', err);
+      console.error('❌ Erro na requisição:', err);
       alert('Erro inesperado na compra.');
     }
   };
+
 
   return (
     <div className="p-8 select-none">
@@ -129,11 +163,31 @@ const Cart: React.FC = () => {
             {qrCode ? (
               <div className="flex flex-col items-end gap-4">
                 <img src={qrCode} alt="QR Code Pix" className="w-56 h-56 border-2 border-gray-300 rounded-md shadow-md" />
+
+                {pixCode && (
+                  <div className="w-full max-w-md">
+                    <label className="text-sm font-medium text-gray-700 block mb-1">Código Pix (copia e cola):</label>
+                    <textarea
+                      value={pixCode}
+                      readOnly
+                      className="w-full bg-gray-100 text-gray-700 p-2 rounded-md text-sm font-mono resize-none"
+                      rows={4}
+                    />
+                    <button
+                      onClick={() => pixCode && navigator.clipboard.writeText(pixCode)}
+                      className="text-sm mt-2 text-blue-600 hover:underline"
+                    >
+                      Copiar código Pix
+                    </button>
+                  </div>
+                )}
+
                 <button onClick={handleEscaneado} disabled={compraLoading} className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition flex items-center justify-center gap-2">
                   {compraLoading ? (
                     <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
                   ) : 'Escaneado'}
                 </button>
+
                 {pagamentoConfirmado && (
                   <div role="alert" aria-live="polite" className="bg-green-50 border border-green-300 text-green-800 p-4 rounded-md shadow-md w-full max-w-md animate-fade-in transition-all duration-500">
                     <h3 className="text-lg font-semibold mb-2">✅ Pagamento confirmado!</h3>
@@ -149,49 +203,45 @@ const Cart: React.FC = () => {
                   </div>
                 )}
               </div>
-                        ) : (
-                          <>
-                            {!qrCode && !modalAberto && (
-                              <button
-                                onClick={() => setModalAberto(true)}
-                                disabled={cartItems.length === 0 || qrLoading}
-                                className={`px-6 py-2 rounded transition text-white flex items-center justify-center gap-2 ${
-                                  cartItems.length === 0 || qrLoading
-                                    ? 'bg-gray-400 cursor-not-allowed'
-                                    : 'bg-blue-600 hover:bg-blue-700'
-                                }`}
-                              >
-                                {qrLoading ? (
-                                  <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-                                ) : 'Comprar'}
-                              </button>
-                            )}
-            
-                            {modalAberto && (
-                              <ModalPagamento
-                                valorTotal={total}
-                                onPagamentoSucesso={async () => {
-                                  await handleComprar(); // reduz estoque e faz toda lógica
-                                  setModalAberto(false);
-                                }}
-                                onClose={() => setModalAberto(false)}
-                                onSelecionarPix={() => {
-                                  setModalAberto(false);
-                                  gerarQRCode();
-                                }}
-                                onSelecionarCartao={() => {
-                                  // opcional: deixar vazio ou log
-                                }}
-                                onSelecionarBoleto={() => {
-                                  setModalAberto(false);
-                                  alert('🧾 Simulação: boleto gerado com vencimento em 2 dias úteis.');
-                                }}
-                              />
-                            )}
+            ) : (
+              <>
+                {!qrCode && !modalAberto && (
+                  <button
+                    onClick={() => setModalAberto(true)}
+                    disabled={cartItems.length === 0 || qrLoading}
+                    className={`px-6 py-2 rounded transition text-white flex items-center justify-center gap-2 ${
+                      cartItems.length === 0 || qrLoading
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                  >
+                    {qrLoading ? (
+                      <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                    ) : 'Comprar'}
+                  </button>
+                )}
 
-                          </>
-                        )}
-            
+                {modalAberto && (
+                  <ModalPagamento
+                    valorTotal={total}
+                    onPagamentoSucesso={async () => {
+                      await handleComprar();
+                      setModalAberto(false);
+                    }}
+                    onClose={() => setModalAberto(false)}
+                    onSelecionarPix={() => {
+                      setModalAberto(false);
+                      gerarQRCode();
+                    }}
+                    onSelecionarCartao={() => {}}
+                    onSelecionarBoleto={() => {
+                      setModalAberto(false);
+                      alert('🧾 Simulação: boleto gerado com vencimento em 2 dias úteis.');
+                    }}
+                  />
+                )}
+              </>
+            )}
           </div>
         </div>
       )}

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/authService';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Login: React.FC = () => {
@@ -17,10 +18,19 @@ const Login: React.FC = () => {
     e.preventDefault();
 
     try {
-      await loginUser(email, password); // Faz chamada real
-      login(); // Atualiza o contexto de autenticação
+      const userData = await loginUser(email, password); // chamada real
+
+      // Salva nos cookies por 1 dia
+      Cookies.set('usuario_id', userData.id, { expires: 1 });
+      Cookies.set('usuario_nome', userData.nome, { expires: 1 });
+      Cookies.set('usuario_email', userData.email, { expires: 1 });
+      if (userData.papel) {
+        Cookies.set('usuario_papel', userData.papel, { expires: 1 });
+      }
+
+      login(); // atualiza contexto (se usar AuthContext)
       toast.success('Login realizado com sucesso!');
-      navigate('/'); // Redireciona para página inicial ou /cart
+      navigate('/');
     } catch (err) {
       console.error('Erro ao fazer login:', err);
       setError('Credenciais inválidas.');

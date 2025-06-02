@@ -24,6 +24,7 @@ import { getProductCount } from './data/getProductCount';
 import PrivateRoute from './components/PrivateRoute';
 
 import { ToastContainer } from 'react-toastify';
+import MeusProdutos from './components/MeusProdutos/MeusProdutos';
 
 const ProductDetailsWrapper = ({
   products,
@@ -88,6 +89,14 @@ function App() {
                   element={
                     <PrivateRoute>
                       <CartPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/retiradas"
+                  element={
+                    <PrivateRoute>
+                      <MeusProdutos />
                     </PrivateRoute>
                   }
                 />

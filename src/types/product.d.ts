@@ -10,4 +10,5 @@ export interface Product {
 export interface ProductInCart extends Product {
     selectedCor: string;
     selectedTamanho: string;
+    variacaoId?: number;
 }
